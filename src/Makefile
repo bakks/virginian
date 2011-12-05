@@ -82,7 +82,6 @@ opcodelist.c: opcodelist.awk virginian.h
 ../db/comparedb:
 	make -s -C ../db clean
 	make -s -C ../db
-	export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/opt/intel/Compiler/11.1/064/lib/intel64 && \
 	../db/generate ../db/comparedb 8000000
 
 ptx: vm/vm_gpu.cu
