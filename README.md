@@ -4,7 +4,7 @@ The Virginian Database
 
 Peter Bakkum 
 
-<pbb7c@virginia.edu> |     <iframe allowtransparency="true" frameborder="0" scrolling="no" src="https://platform.twitter.com/widgets.js//platform.twitter.com/widgets/follow_button.html?screen_name=twitterapi" style="width:300px; height:20px;"></iframe> <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+<pbb7c@virginia.edu> | [@PBBakkum](http://twitter.com/pbbakkum)
 
 Written Summer 2010 
 
@@ -18,8 +18,9 @@ processing on the CPU and NVIDIA GPUs. It was written by Peter Bakkum
 during the summer of 2010 at NEC Laboratories America in Princeton, New Jersey
 with several subsequent expansions. It shares no code with any other database
 system. A thanks goes to the Systems Architecture group at NEC, Srimat
-Chakradhar in particular, and the LAVA Lab group at UVa, Prof Kevin Skadron in
-particular.
+Chakradhar in particular, and the
+[LAVA Lab group at UVa](http://www.cs.virginia.edu/~skadron/pub_list.html),
+Prof Kevin Skadron in particular.
 
 The purpose of this database is to test and demonstrate several novel ideas
 relating to RDBMS-like computation on the GPU. Thus, all queries can be executed
