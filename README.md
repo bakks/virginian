@@ -2,8 +2,15 @@
 The Virginian Database
 ======================
 
-Peter Bakkum <pbb7c@virginia.edu>
-Written Summer 2010 at NEC Laboratories America in Princeton, New Jersey
+Peter Bakkum 
+
+<pbb7c@virginia.edu>
+
+@pbbakkum
+
+Written Summer 2010 
+
+NEC Laboratories America, Princeton, New Jersey
 
 Introduction
 ------------
@@ -56,62 +63,92 @@ whether in contract, strict liability, or tort (including negligence or
 otherwise) arising in any way out of the use of this software, even if
 advised of the possibility of such damage.
 
-Compilation
------------
+Using Virginian
+---------------
 
-Initial compilation should be done by running make in the project root
-directory. This will download and compile the GNU Scientific Library, which
-is used for generating random numbers for test databases. It will then create
-a 1,000,000 row test database and call make in the src/ directory, which
+### Setup
+
+The first step to use Virginian is to download the source by running
+
+`git clone git@github.com:bakks/virginian.git`
+
+You may be able to use Virginian simply by linking against the virginian.h and
+virginian.a files in the lib/ directory. If this does not work, or if you want
+to run the included tests and benchmarks, you will have to compile the project
+yourself.
+
+### Compilation
+
+To compile Virginian, verify that your machine fits the requirements below and
+follow these instructions:
+
+- Open src/Makefile and verify the locations of the programs and libraries shown
+  at the top, notably the `GCC`, `GPP`, and `CUDA` variables. You may also want
+  to change the `CUDA_LIBRARY` function to `lib64` if you have the 64 bit
+  version of CUDA. 
+
+- Run `make clean` in the project's root directory
+
+- Run `make` in the project's root directory
+
+It will then create
+a large test database and call make in the src/ directory, which
 will make all of the project source files and run a test to compare the
 running times of queries for single and multicore CPU execution and GPU
 execution. These tests can be run again just by executing make in the src/
-directory.
+directory. Some benchmarks are output as `release/*.dat`.
 
-There are 3 modes of compilation: debug, gccrelease, and iccrelease. The
-gccrelease settings enable optimization, and the iccrelease settings compile
-with optimization using icc. Timing results should only be reported from
-release settings. The compilation mode is set in the Makefile in the src/
-directory.
+There are 2 modes of compilation: debug, and release. The
+release settings enable optimization on the CPU but do not affect the GPU
+speed, thus
+timing results should only be reported from
+release settings. The compilation mode is set in src/Makefile.
 
-Before compiling you should look in src/Makefile and tweak the settings for your
-machine.
+### Requirements
 
-The following programs are required for compilation:
+The requirements for compilation are as follows:
 
-- gcc
+- Linux 2.6/3.0
+
+- CUDA 4.0
+
+- An SM 2.0 NVIDIA GPU
+
+The following programs are required:
+
+- gcc 4.4
+
   This is always accessed through nvcc and if compiling in the debug or
-  gccrelease modes. Last tested with gcc v4.5.2, and v4.4 with nvcc, which
-  is not compatible with 4.5.
+  gccrelease modes. Last tested with gcc v4.4.6. Note that nvcc is not
+  compatible with gcc versions greater than 4.4.
 
-- g++
+- g++ 4.4
+
   Used for running and compiling test code written in C++. Last tested with g++
-  v4.5.2.
+  v4.4.6.
 
 - nvcc
+ 
   CUDA compiler, used for GPU related code. Last tested with nvcc v4.0.
 
 - flex
+ 
   Used for SQL code compiler. Last tested with flex v2.5.
 
 - bison
+ 
   Used for SQL code compiler. Last tested with bison v2.4.
 
 - awk
+ 
   There is an awk script that scrapes a header file to automatically generate a
   C file used for debugging. Last tested with mawk v1.3.3.
 
 - make
+ 
   This project lives in a make world. Last tested with GNU Make v3.81.
 
-- icc
-  This is optional for producing an optimized release with the iccrelease
-  setting. Interesting because Intel optimizes slightly different than gcc. Last
-  tested with v11.1. I have not tried this recently and it may be broken. Note
-  that even if using icc, nvcc still uses gcc for compilation under the hood.
-
-Using the Virginian API
------------------------
+### Using the Virginian API
 
 This project's interface is well documented but I haven't taken the step of
 dividing the user-facing and internal functionality, so the documentation covers
@@ -119,7 +156,87 @@ both. Using the code externally should be fairly straightforward. The
 compilation and testing process outputs an archive file to the lib/ directory
 that can be compiled with another C/C++ project. The files you need are
 lib/virginian.a and lib/virginian.h. The example/ directory contains a very
-simple project useful for getting started using this code.
+simple project useful for getting started using this code. The main function
+from this project is shown below.
+
+
+### Example
+
+
+	/**
+	* This is a simple example of a program that uses the Virginian database. This
+	* is intended to help begin experimenting with the code, there is significant
+	* functionality that is not utilized. For more information on the functions
+	* used below, see the documentation or source files. A make file is included to
+	* show how compilation works.
+	*/
+
+	#include <stdio.h>
+	#include <unistd.h>
+	#include "virginian.h"
+
+	int main()
+	{
+		// declare db state struct
+		virginian v;
+
+		// delete database file if it exists
+		unlink("testdb");
+
+		// initialize state
+		virg_init(&v);
+
+		// create new database in testdb file
+		virg_db_create(&v, "testdb");
+
+		// create table called test with an integer column called col0
+		virg_table_create(&v, "test", VIRG_INT);
+		virg_table_addcolumn(&v, 0, "col0", VIRG_INT);
+
+		// insert 100 rows, using i as the row key and x as the value for col0
+		int i, x;
+		for(i = 0; i < 100; i++) {
+			x = i * 5;
+			virg_table_insert(&v, 0, (char*)&i, (char*)&x, NULL);
+		}
+
+		// declare reader pointer
+		virg_reader *r;
+
+		// set optional query parameters
+		v.use_multi = 0; // not multithreaded
+		v.use_gpu = 0; // don't use GPU
+		v.use_mmap = 0; // don't use mapped memory
+
+		// execute query
+		virg_query(&v, &r, "select id, col0 from test where col0 <= 25");
+
+		// output result column names
+		unsigned j;
+		for(j = 0; j < r->res->fixed_columns; j++)
+			printf("%s\t", r->res->fixed_name[j]);
+			printf("\n");
+
+			// output result data
+			while(virg_reader_row(&v, r) != VIRG_FAIL) {
+				int *results = (int*)r->buffer;
+
+				printf("%i\t%i\n", results[0], results[1]);
+			}
+
+			// clean up after query
+			virg_reader_free(&v, r);
+			virg_vm_cleanup(&v, r->vm);
+			free(r);
+
+			// close database
+			virg_close(&v);
+
+			// delete database file
+			unlink("testdb");
+	}
+
+
 
 Compile-time Options
 --------------------
@@ -129,20 +246,24 @@ added by editing the CUSTOM_FLAGS variable of the Makefile in the src/
 folder. The format should be -D MACRO_NAME.
 
 - VIRG_DEBUG
+
   Enables debugging code, such as printing out the higher-level opcodes as
   they execute and initializing memory areas to 0xDEADBEEF.
 
 - VIRG_DEBUG_SLOTS
+
   Enables tablet slot information printing to stdout. This prints out a
   listing of the tablet ids and locks whenever a lock is acquired or
   released.
 
 - VIRG_NOPINNED
+
   Do not declare the main-memory tablet slots as pinned. This switches the
   allocation to a malloc() rather than a cudaMallocHost(). This means that
   GPU execution cannot use streaming or mapped memory.
 
 - VIRG_NOTWOSTEP
+
   Do not buffer results temporarily in GPU global memory before writing them
   to main memory. This two-step copy operation makes mapped memory on the
   C1060 faster by an order of magnitude but should be disabled for ION boards
@@ -178,12 +299,14 @@ data-parallel segment. These opcodes do not handle row data directly and are
 implemented in vm/execute.c. They are listed in alphabetical order.
 
 - Finish [], [], [], []
+
   This opcode marks the end of the data-parallel segment of query execution.
   Its purpose is to provide a jump location for the higher-level virtual
   machine and to clean up the remaining tablet locks of the data-parallel
   segment.
 
 - Parallel [], [], [end of parallel section], []
+
   Begins the data-parallel segment of query execution. Depending on the
   configuration settings, this either launches a single-core, multi-core, or
   GPU virtual machine that treats every row as independent in its processing.
@@ -191,6 +314,7 @@ implemented in vm/execute.c. They are listed in alphabetical order.
   segment, which should always be Finish.
 
 - ResultColumn [column type], [], [], [column name]
+
   Prepares the result tablet to receive a certain column of data. The type is
   one of the integer enumerations of data types, such as VIRG_INT, and the
   name is a character pointer to a location in memory of a c string
@@ -198,6 +322,7 @@ implemented in vm/execute.c. They are listed in alphabetical order.
   this opcode once are currently implemented.
 
 - Table [table id], [], [], []
+
   Opens a handle on a table for execution. Required when beginning execution.
 
 
@@ -238,78 +363,94 @@ the GPU.
   Casts the value in register p2 to the type denoted by p1, such as VIRG_INT.
 
 - Column [destination register], [source column], [], []
+
   Loads the value from from the p2-th fixed column of the current table and
   places it in the p1-th register.
 
 - Converge [], [], [], []
+
   Marks the end of the data-parallel query execution segment. This opcode
   causes the lower-level virtual machine to exit and return control to the
   higher-level virtual machinemachine.
 
 - Div [destination register], [source register 1], [source register 2], []
+
   Executes the operation reg[p1] = reg[p2] / reg[p3].
 
 - Eq [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] == reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Float [destination register], [], [], [constant]
+
   Sets the value of reg[p1] to the float value of p4.
 
 - Ge [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] >= reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Gt [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] > reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Integer [destination register], [constant], [], []
+
   Sets the value of reg[p1] to p2, which is an integer value.
 
 - Invalid [], [], [], []
+
   Invalidates all rows that have this opcode executed, so the only rows that
   are output by ResultRow are those that jump over this opcode.
 
 - Le [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] <= reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Lt [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] < reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Mul [destination register], [source register 1], [source register 2], []
+
   Executes the operation reg[p1] = reg[p2] * reg[p3].
 
 - Neq [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] != reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Not [test register], [], [jump location], [validity]
+
   If reg[p1] evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Or [comparison register 1], [comparison register 2], [jump location],
   [validity]
+  
   If (reg[p1] || reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
 - Result [start register], [result columns], [], []
+
   If the current row is still valid then output the registers from reg[p1] to
   reg[p1 + p2] as a row of fixed-size results. The CPU virtual machine
   attempts to efficiently group the copies of a column in adjacent rows,
@@ -317,9 +458,11 @@ the GPU.
   conducted in two-steps in shared and global memory.
 
 - Rowid [destination register], [], [], []
+
   Loads the value of the current row's primary key and places it in reg[p1]
 
 - Sub [destination register], [source register 1], [source register 2], []
+
   Executes the operation reg[p1] = reg[p2] - reg[p3].
 
 
