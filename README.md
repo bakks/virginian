@@ -4,9 +4,7 @@ The Virginian Database
 
 Peter Bakkum 
 
-<pbb7c@virginia.edu>
-
-@pbbakkum
+<pbb7c@virginia.edu> | @pbbakkum
 
 Written Summer 2010 
 
@@ -72,8 +70,8 @@ The first step to use Virginian is to download the source by running
 
 `git clone git@github.com:bakks/virginian.git`
 
-You may be able to use Virginian simply by linking against the virginian.h and
-virginian.a files in the lib/ directory. If this does not work, or if you want
+You may be able to use Virginian simply by linking against the `virginian.h` and
+`virginian.a` files in the lib/ directory. If this does not work, or if you want
 to run the included tests and benchmarks, you will have to compile the project
 yourself.
 
@@ -92,7 +90,7 @@ follow these instructions:
 - Run `make` in the project's root directory
 
 It will then create
-a large test database and call make in the src/ directory, which
+a large test database and call make in the `src/` directory, which
 will make all of the project source files and run a test to compare the
 running times of queries for single and multicore CPU execution and GPU
 execution. These tests can be run again just by executing make in the src/
@@ -102,7 +100,7 @@ There are 2 modes of compilation: debug, and release. The
 release settings enable optimization on the CPU but do not affect the GPU
 speed, thus
 timing results should only be reported from
-release settings. The compilation mode is set in src/Makefile.
+release settings. The compilation mode is set in `src/Makefile`.
 
 ### Requirements
 
@@ -153,9 +151,10 @@ The following programs are required:
 This project's interface is well documented but I haven't taken the step of
 dividing the user-facing and internal functionality, so the documentation covers
 both. Using the code externally should be fairly straightforward. The
-compilation and testing process outputs an archive file to the lib/ directory
+compilation and testing process outputs an archive file to the `lib/` directory
 that can be compiled with another C/C++ project. The files you need are
-lib/virginian.a and lib/virginian.h. The example/ directory contains a very
+`lib/virginian.a` and `lib/virginian.h`. The `example/` directory contains a
+very
 simple project useful for getting started using this code. The main function
 from this project is shown below.
 
@@ -350,106 +349,106 @@ valid rows execute this opcode, and this change was intended to better
 support coordination among threads on the GPU and within the SIMD block on
 the GPU.
 
-- Add [destination register], [source register 1], [source register 2], []
+- __Add__ [destination register], [source register 1], [source register 2], []
   Executes the operation reg[p1] = reg[p2] + reg[p3].
 
-- And [comparison register 1], [comparison register 2], [jump location],
+- __And__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   If (reg[p1] && reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Cast [target type], [register], [], []
+- __Cast__ [target type], [register], [], []
   Casts the value in register p2 to the type denoted by p1, such as VIRG_INT.
 
-- Column [destination register], [source column], [], []
+- __Column__ [destination register], [source column], [], []
 
   Loads the value from from the p2-th fixed column of the current table and
   places it in the p1-th register.
 
-- Converge [], [], [], []
+- __Converge__ [], [], [], []
 
   Marks the end of the data-parallel query execution segment. This opcode
   causes the lower-level virtual machine to exit and return control to the
   higher-level virtual machinemachine.
 
-- Div [destination register], [source register 1], [source register 2], []
+- __Div__ [destination register], [source register 1], [source register 2], []
 
   Executes the operation reg[p1] = reg[p2] / reg[p3].
 
-- Eq [comparison register 1], [comparison register 2], [jump location],
+- __Eq__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] == reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Float [destination register], [], [], [constant]
+- __Float__ [destination register], [], [], [constant]
 
   Sets the value of reg[p1] to the float value of p4.
 
-- Ge [comparison register 1], [comparison register 2], [jump location],
+- __Ge__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] >= reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Gt [comparison register 1], [comparison register 2], [jump location],
+- __Gt__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] > reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Integer [destination register], [constant], [], []
+- __Integer__ [destination register], [constant], [], []
 
   Sets the value of reg[p1] to p2, which is an integer value.
 
-- Invalid [], [], [], []
+- __Invalid__ [], [], [], []
 
   Invalidates all rows that have this opcode executed, so the only rows that
   are output by ResultRow are those that jump over this opcode.
 
-- Le [comparison register 1], [comparison register 2], [jump location],
+- __Le__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] <= reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Lt [comparison register 1], [comparison register 2], [jump location],
+- __Lt__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] < reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Mul [destination register], [source register 1], [source register 2], []
+- __Mul__ [destination register], [source register 1], [source register 2], []
 
   Executes the operation reg[p1] = reg[p2] * reg[p3].
 
-- Neq [comparison register 1], [comparison register 2], [jump location],
+- __Neq__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] != reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Not [test register], [], [jump location], [validity]
+- __Not__ [test register], [], [jump location], [validity]
 
   If reg[p1] evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Or [comparison register 1], [comparison register 2], [jump location],
+- __Or__ [comparison register 1], [comparison register 2], [jump location],
   [validity]
   
   If (reg[p1] || reg[p2]) evaluates to true, then the program counter
   associated with this row jumps to p3 and the rows validity is set to the
   integer value of p4.
 
-- Result [start register], [result columns], [], []
+- __Result__ [start register], [result columns], [], []
 
   If the current row is still valid then output the registers from reg[p1] to
   reg[p1 + p2] as a row of fixed-size results. The CPU virtual machine
@@ -457,11 +456,11 @@ the GPU.
   while the GPU coalesces these writes after an atomic scatter operation
   conducted in two-steps in shared and global memory.
 
-- Rowid [destination register], [], [], []
+- __Rowid__ [destination register], [], [], []
 
   Loads the value of the current row's primary key and places it in reg[p1]
 
-- Sub [destination register], [source register 1], [source register 2], []
+- __Sub__ [destination register], [source register 1], [source register 2], []
 
   Executes the operation reg[p1] = reg[p2] - reg[p3].
 
