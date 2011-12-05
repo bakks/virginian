@@ -4,7 +4,10 @@ all:
 	make -C src
 
 clean:
-	rm -rf gsl gsl-$(GSL_VER) db/comparedb db/generate db/generate.o virginian.tar.gz
+	rm -rf gsl gsl-$(GSL_VER) db/comparedb virginian.tar.gz debug release
+	mkdir -p doc
+	make -C example clean
+	make -C db clean
 	make -C src clean
 
 gsl:

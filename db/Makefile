@@ -8,7 +8,6 @@ generate: generate.c ../lib/virginian.a ../src/virginian.h
 
 clean:
 	rm -f generate generate.o
-	rm -f ../debug/virginian.c ../debug/virginian.a
 
 .PHONY: clean
 
