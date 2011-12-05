@@ -1,0 +1,14 @@
+
+*~
+*.o
+virginiantest
+generate
+comparedb
+vm_gpu.ptx
+lex.yy.c
+sql.tab.*
+*.dat
+*.swp
+doc/*
+*.tar.gz
+
