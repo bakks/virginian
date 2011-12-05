@@ -161,80 +161,80 @@ from this project is shown below.
 
 ### Example
 
+``` C
+/**
+* This is a simple example of a program that uses the Virginian database. This
+* is intended to help begin experimenting with the code, there is significant
+* functionality that is not utilized. For more information on the functions
+* used below, see the documentation or source files. A make file is included to
+* show how compilation works.
+*/
 
-	/**
-	* This is a simple example of a program that uses the Virginian database. This
-	* is intended to help begin experimenting with the code, there is significant
-	* functionality that is not utilized. For more information on the functions
-	* used below, see the documentation or source files. A make file is included to
-	* show how compilation works.
-	*/
+#include <stdio.h>
+#include <unistd.h>
+#include "virginian.h"
 
-	#include <stdio.h>
-	#include <unistd.h>
-	#include "virginian.h"
+int main()
+{
+	// declare db state struct
+	virginian v;
 
-	int main()
-	{
-		// declare db state struct
-		virginian v;
+	// delete database file if it exists
+	unlink("testdb");
 
-		// delete database file if it exists
-		unlink("testdb");
+	// initialize state
+	virg_init(&v);
 
-		// initialize state
-		virg_init(&v);
+	// create new database in testdb file
+	virg_db_create(&v, "testdb");
 
-		// create new database in testdb file
-		virg_db_create(&v, "testdb");
+	// create table called test with an integer column called col0
+	virg_table_create(&v, "test", VIRG_INT);
+	virg_table_addcolumn(&v, 0, "col0", VIRG_INT);
 
-		// create table called test with an integer column called col0
-		virg_table_create(&v, "test", VIRG_INT);
-		virg_table_addcolumn(&v, 0, "col0", VIRG_INT);
-
-		// insert 100 rows, using i as the row key and x as the value for col0
-		int i, x;
-		for(i = 0; i < 100; i++) {
-			x = i * 5;
-			virg_table_insert(&v, 0, (char*)&i, (char*)&x, NULL);
-		}
-
-		// declare reader pointer
-		virg_reader *r;
-
-		// set optional query parameters
-		v.use_multi = 0; // not multithreaded
-		v.use_gpu = 0; // don't use GPU
-		v.use_mmap = 0; // don't use mapped memory
-
-		// execute query
-		virg_query(&v, &r, "select id, col0 from test where col0 <= 25");
-
-		// output result column names
-		unsigned j;
-		for(j = 0; j < r->res->fixed_columns; j++)
-			printf("%s\t", r->res->fixed_name[j]);
-			printf("\n");
-
-			// output result data
-			while(virg_reader_row(&v, r) != VIRG_FAIL) {
-				int *results = (int*)r->buffer;
-
-				printf("%i\t%i\n", results[0], results[1]);
-			}
-
-			// clean up after query
-			virg_reader_free(&v, r);
-			virg_vm_cleanup(&v, r->vm);
-			free(r);
-
-			// close database
-			virg_close(&v);
-
-			// delete database file
-			unlink("testdb");
+	// insert 100 rows, using i as the row key and x as the value for col0
+	int i, x;
+	for(i = 0; i < 100; i++) {
+		x = i * 5;
+		virg_table_insert(&v, 0, (char*)&i, (char*)&x, NULL);
 	}
 
+	// declare reader pointer
+	virg_reader *r;
+
+	// set optional query parameters
+	v.use_multi = 0; // not multithreaded
+	v.use_gpu = 0; // don't use GPU
+	v.use_mmap = 0; // don't use mapped memory
+
+	// execute query
+	virg_query(&v, &r, "select id, col0 from test where col0 <= 25");
+
+	// output result column names
+	unsigned j;
+	for(j = 0; j < r->res->fixed_columns; j++)
+		printf("%s\t", r->res->fixed_name[j]);
+		printf("\n");
+
+		// output result data
+		while(virg_reader_row(&v, r) != VIRG_FAIL) {
+			int *results = (int*)r->buffer;
+
+			printf("%i\t%i\n", results[0], results[1]);
+		}
+
+		// clean up after query
+		virg_reader_free(&v, r);
+		virg_vm_cleanup(&v, r->vm);
+		free(r);
+
+		// close database
+		virg_close(&v);
+
+		// delete database file
+		unlink("testdb");
+}
+```
 
 
 Compile-time Options
@@ -269,8 +269,10 @@ folder. The format should be -D MACRO_NAME.
   because there is no distinction between GPU memory and main memory.
 
 
-Opcodes
--------
+Architecture
+------------
+
+### Opcodes
 
 These opcodes are the steps into which a query is broken down. Each opcode
 has four arguments, though few opcodes use all four. The first three are
@@ -290,21 +292,20 @@ can diverge and have an independent program counter, that program counter can
 never decrease. In other words, execution over the data-parallel segment
 proceeds as a waterfall, so opcodes can only jump ahead.
 
-Higher-Level Opcodes
---------------------
+### Higher-Level Opcodes
 
 These opcodes control setting up query execution and launching the
 data-parallel segment. These opcodes do not handle row data directly and are
 implemented in vm/execute.c. They are listed in alphabetical order.
 
-- Finish [], [], [], []
+- __Finish__ [], [], [], []
 
   This opcode marks the end of the data-parallel segment of query execution.
   Its purpose is to provide a jump location for the higher-level virtual
   machine and to clean up the remaining tablet locks of the data-parallel
   segment.
 
-- Parallel [], [], [end of parallel section], []
+- __Parallel__ [], [], [end of parallel section], []
 
   Begins the data-parallel segment of query execution. Depending on the
   configuration settings, this either launches a single-core, multi-core, or
@@ -312,7 +313,7 @@ implemented in vm/execute.c. They are listed in alphabetical order.
   The third argument refers to the opcode marking the end of the parallel
   segment, which should always be Finish.
 
-- ResultColumn [column type], [], [], [column name]
+- __ResultColumn__ [column type], [], [], [column name]
 
   Prepares the result tablet to receive a certain column of data. The type is
   one of the integer enumerations of data types, such as VIRG_INT, and the
@@ -320,13 +321,12 @@ implemented in vm/execute.c. They are listed in alphabetical order.
   containing the result column names. Note that only the semantics to call
   this opcode once are currently implemented.
 
-- Table [table id], [], [], []
+- __Table__ [table id], [], [], []
 
   Opens a handle on a table for execution. Required when beginning execution.
 
 
-Lower-Level Opcodes
--------------------
+### Lower-Level Opcodes
 
 These opcodes are used to work directly with the data of a table, and can be
 independently executed for each row. They are specifically designed to be
