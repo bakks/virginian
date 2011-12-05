@@ -30,7 +30,8 @@ database has been constructed.
 
 This is a "SQL Database" in that it has a SQL interface and is capable of
 performing several types of queries on non-volatile data, but is far from
-supporting the full SQL standard. It is not suitable for production, but has
+supporting the full SQL standard, and only handles filters through SELECT.
+It is not suitable for production, but has
 been written to be small and make it easy to experiment and compare execution on
 the CPU and GPU.
 
@@ -102,6 +103,13 @@ speed, thus
 timing results should only be reported from
 release settings. The compilation mode is set in `src/Makefile`.
 
+If any of the tests fail, there was a problem. I've attempted to verify all the
+functionality I've written, and all tests pass for me, but CUDA still has some
+problems that result in non-deterministic behavior. The first thing to try is a
+hard reset of your machine, as GPU devices can sometimes enter a state where
+kernel launches or even simple memory writes fail randomly until the device is
+reset.
+
 ### Requirements
 
 The requirements for compilation are as follows:
@@ -153,11 +161,26 @@ dividing the user-facing and internal functionality, so the documentation covers
 both. Using the code externally should be fairly straightforward. The
 compilation and testing process outputs an archive file to the `lib/` directory
 that can be compiled with another C/C++ project. The files you need are
-`lib/virginian.a` and `lib/virginian.h`. The `example/` directory contains a
-very
-simple project useful for getting started using this code. The main function
-from this project is shown below.
+`lib/virginian.a` and `lib/virginian.h`.
 
+The `example/` directory contains a very
+simple project useful for getting started using this code. The main function
+from this project is shown below. To use the database I recommend you start from
+the example and read the documentation or even look at the source code to add
+functionality. The interface overall is not very user friendly, email me if you
+get stuck.
+
+### Supported Queries
+
+Only a small subset of SQL is supported right now. The following shows
+acceptable syntax:
+
+`SELECT <expression list> FROM <table name> WHERE <condition list>`
+
+An expression can be a column or mathematical value, and math operations are
+supported, e.g. `col0 + 10`. A condition compares two expressions and evaluates
+to a boolean, e.g. `col0 + 10 < col1`. Floating point and integer queries work,
+strings are __not__ supported.
 
 ### Example
 
@@ -271,6 +294,40 @@ folder. The format should be -D MACRO_NAME.
 
 Architecture
 ------------
+
+The project can be broken into the following components, which roughly
+correspond to the source code directories.
+
+- Query Parser
+
+	Accepts SQL as input and outputs programs in discrete steps known as
+	__opcodes__.
+
+- Virtual Machine
+
+	Executes an opcode program, processing data records and outputting a result
+	set. The virtual machine has been written on both the CPU and GPU.
+
+- Tablet Functionality
+
+	Code that manipulates the tablet data structure to add and read data.
+
+- Table Functionality
+
+	Manages groups of tablets in tables
+
+- Memory Functionality
+
+	Code that manages tablets in a pre-allocated space in memory.
+
+- Database Functionality
+
+	Code that manages paging tablets between memory and disk, and writes
+	metadata to a database file to ensure non-volatile storage of data.
+
+- Test Code
+
+	Written in C++ with GTest, this tests the above functionality.
 
 ### Opcodes
 
