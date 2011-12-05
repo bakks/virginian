@@ -1,10 +1,12 @@
 
 The Virginian Database
+======================
 
 Peter Bakkum <pbb7c@virginia.edu>
 Written Summer 2010 at NEC Laboratories America in Princeton, New Jersey
 
 Introduction
+------------
 
 This is an experimental heterogeneous SQL database written to compare data
 processing on the CPU and NVIDIA GPUs. It was written by Peter Bakkum
@@ -41,6 +43,7 @@ viewed by opening html/index.html with a web browser or by running make in the
 latex/ directory to generate a pdf of the documentation.
 
 License
+-------
 
 This software is provided "as is" and any expressed or implied warranties,
 including, but not limited to, the implied warranties of merchantibility and
@@ -54,6 +57,7 @@ otherwise) arising in any way out of the use of this software, even if
 advised of the possibility of such damage.
 
 Compilation
+-----------
 
 Initial compilation should be done by running make in the project root
 directory. This will download and compile the GNU Scientific Library, which
@@ -107,6 +111,7 @@ The following programs are required for compilation:
   that even if using icc, nvcc still uses gcc for compilation under the hood.
 
 Using the Virginian API
+-----------------------
 
 This project's interface is well documented but I haven't taken the step of
 dividing the user-facing and internal functionality, so the documentation covers
@@ -117,6 +122,7 @@ lib/virginian.a and lib/virginian.h. The example/ directory contains a very
 simple project useful for getting started using this code.
 
 Compile-time Options
+--------------------
 
 There are several macros that change the program at compile time. They are
 added by editing the CUSTOM_FLAGS variable of the Makefile in the src/
@@ -144,6 +150,7 @@ folder. The format should be -D MACRO_NAME.
 
 
 Opcodes
+-------
 
 These opcodes are the steps into which a query is broken down. Each opcode
 has four arguments, though few opcodes use all four. The first three are
@@ -164,6 +171,7 @@ never decrease. In other words, execution over the data-parallel segment
 proceeds as a waterfall, so opcodes can only jump ahead.
 
 Higher-Level Opcodes
+--------------------
 
 These opcodes control setting up query execution and launching the
 data-parallel segment. These opcodes do not handle row data directly and are
@@ -194,6 +202,7 @@ implemented in vm/execute.c. They are listed in alphabetical order.
 
 
 Lower-Level Opcodes
+-------------------
 
 These opcodes are used to work directly with the data of a table, and can be
 independently executed for each row. They are specifically designed to be
