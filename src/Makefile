@@ -8,7 +8,7 @@ ENTRY_POINT =
 # custom compiler declarations
 CUSTOM_FLAGS = #-D VIRG_DEBUG #-D VIRG_NOPINNED #-D VIRG_DEBUG_SLOTS
 
-GCC = /usr/bin/gcc
+GCC = /usr/bin/gcc-4.4
 GPP = /usr/bin/g++-4.4
 ICC = /opt/intel/Compiler/11.1/064/bin/intel64/icc
 CUDA = /usr/local/cuda
@@ -62,6 +62,7 @@ virginian: ../lib/virginian.a $(ENTRY_POINT) test ../$(OF)/virginiantest ../db/c
 clean:
 	rm -rf ../debug/* ../release.gcc/* ../release.icc/* opcodelist.c vm_gpu.ptx sql/lex.yy.c sql/sql.tab.*
 	rm -rf ../lib/virginian.*
+	mkdir -p ../debug ../release.gcc/ ../release.icc
 	ls -d */ | sed 's/[a-z]*\//..\/debug\/\0/' | xargs mkdir
 	ls -d */ | sed 's/[a-z]*\//..\/release.gcc\/\0/' | xargs mkdir
 	ls -d */ | sed 's/[a-z]*\//..\/release.icc\/\0/' | xargs mkdir
