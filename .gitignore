@@ -1,9 +1,13 @@
 
 *~
 *.o
+debug
+release.gcc
+release.icc
 virginiantest
 generate
 comparedb
+test
 vm_gpu.ptx
 lex.yy.c
 sql.tab.*
