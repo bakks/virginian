@@ -1,6 +1,6 @@
 
-# set config to debug, gccrelease, or iccrelease
-CONFIG = gccrelease
+# set config to debug, release
+CONFIG = release
 
 # file with main function
 ENTRY_POINT = 
@@ -10,18 +10,13 @@ CUSTOM_FLAGS = #-D VIRG_DEBUG #-D VIRG_NOPINNED #-D VIRG_DEBUG_SLOTS
 
 GCC = /usr/bin/gcc-4.4
 GPP = /usr/bin/g++-4.4
-ICC = /opt/intel/Compiler/11.1/064/bin/intel64/icc
 CUDA = /usr/local/cuda
 NVCC = $(CUDA)/bin/nvcc
 CUDA_INCLUDE = $(CUDA)/include
 CUDA_LIBRARY = $(CUDA)/lib
 GTEST = ../gtest
 
-ifeq ($(CONFIG),iccrelease)
-	FLAGS = -Wall -w1 -std=c99
-else
-	FLAGS = -Wall -Wextra -std=c99
-endif
+FLAGS = -Wall -Wextra -std=c99
 
 INCLUDE_FLAGS = -I $(CUDA_INCLUDE) -I . -I sql/
 LINK_FLAGS = -lm -lpthread -L$(CUDA_LIBRARY) -lcuda -lcudart
@@ -35,14 +30,9 @@ ifeq ($(CONFIG),debug)
 	CC = $(GCC)
 	COMPILE_FLAGS = $(FLAG) $(DEBUG_FLAGS)
 endif
-ifeq ($(CONFIG),gccrelease)
-	OF = release.gcc
+ifeq ($(CONFIG),release)
+	OF = release
 	CC = $(GCC)
-	COMPILE_FLAGS = $(FLAG) $(RELEASE_FLAGS)
-endif
-ifeq ($(CONFIG),iccrelease)
-	OF = release.icc
-	CC = $(ICC)
 	COMPILE_FLAGS = $(FLAG) $(RELEASE_FLAGS)
 endif
 
@@ -60,12 +50,11 @@ virginian: ../lib/virginian.a $(ENTRY_POINT) test ../$(OF)/virginiantest ../db/c
 #  --gen-suppressions=yes
 
 clean:
-	rm -rf ../debug/* ../release.gcc/* ../release.icc/* opcodelist.c vm_gpu.ptx sql/lex.yy.c sql/sql.tab.*
+	rm -rf ../debug/* ../release/* opcodelist.c vm_gpu.ptx sql/lex.yy.c sql/sql.tab.*
 	rm -rf ../lib/virginian.*
-	mkdir -p ../debug ../release.gcc/ ../release.icc
+	mkdir -p ../debug ../release/
 	ls -d */ | sed 's/[a-z]*\//..\/debug\/\0/' | xargs mkdir
-	ls -d */ | sed 's/[a-z]*\//..\/release.gcc\/\0/' | xargs mkdir
-	ls -d */ | sed 's/[a-z]*\//..\/release.icc\/\0/' | xargs mkdir
+	ls -d */ | sed 's/[a-z]*\//..\/release\/\0/' | xargs mkdir
 
 count:
 	wc -l *.c *.h */*.c */*.cu */*.h */*.cc */*.y */*.l
