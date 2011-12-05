@@ -4,7 +4,8 @@ The Virginian Database
 
 Peter Bakkum 
 
-<pbb7c@virginia.edu> | @pbbakkum
+<pbb7c@virginia.edu> | <a href="https://twitter.com/PBBakkum" class="twitter-follow-button" data-show-count="false">Follow @PBBakkum</a>
+<script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
 
 Written Summer 2010 
 
