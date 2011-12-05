@@ -57,14 +57,17 @@ On the machines I have tested with, GPU execution is __2x - 5x__ faster than
 multicore CPU execution when all-in data and results transfers to and from the
 GPU are included. When these are cached on the GPU, it is around __5x - 10x__
 faster than the CPU. Speedup depends on the query, number of data records,
-number of result records, and the specific test hardware, your mileage may vary.
+number of result records, and the specific test hardware. Your mileage may vary.
 
 The point is that unindexed SQL SELECT filters are faster on GPU hardware than
 CPU hardware, _even for arbitrary data size_, and including transfer times. This
 is possible because of two innovations: the __Tablet__, and my technique of
 _mapped memory with lazy result writes_. See the paper for more details.
 
-Here are some performance charts:
+Here are some performance charts that compare running times of a 10 SQL query
+suite on the CPU and two GPU execution techniques. The mapped configuration is
+applicable to arbitrary data sizes, while the cached configuration applies only
+for data sizes that fit within the GPU's global memory.
 
 <img src="http://pbbakkum.com/virginian/perfhist.jpg"/>
 
