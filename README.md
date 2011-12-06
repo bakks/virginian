@@ -68,7 +68,7 @@ faster than the CPU. Speedup depends on the query, number of data records,
 number of result records, and the specific test hardware. Your mileage may vary.
 
 The point is that unindexed SQL SELECT filters are faster on GPU hardware than
-CPU hardware, _even for arbitrary data size_, and including transfer times. This
+CPU hardware, _even for arbitrary data sizes_ including transfer times. This
 is possible because of two innovations: the __Tablet__, and my technique of
 _mapped memory with lazy result writes_. See the paper for more details.
 
@@ -114,7 +114,7 @@ yourself.
 To compile Virginian, verify that your machine fits the requirements below and
 follow these instructions:
 
-- Open src/Makefile and verify the locations of the programs and libraries shown
+- Open `src/Makefile` and verify the locations of the programs and libraries shown
   at the top, notably the `GCC`, `GPP`, and `CUDA` variables. You may also want
   to change the `CUDA_LIBRARY` function to `lib64` if you have the 64 bit
   version of CUDA. 
@@ -212,7 +212,8 @@ acceptable syntax:
 
 An expression can be a column or mathematical value, and math operations are
 supported, e.g. `col0 + 10`. A condition compares two expressions and evaluates
-to a boolean, e.g. `col0 + 10 < col1`. Floating point and integer queries work,
+to a boolean, e.g. `col0 + 10 < col1`. Conditions can be chained together with
+ORs and ANDs. Floating point and integer queries work,
 strings are __not__ supported.
 
 ### Example
