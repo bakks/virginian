@@ -51,6 +51,8 @@ A preliminary academic paper is
 on a previous project that accelerated portions of the SQLite database with GPUs
 [available here](http://pbbakkum.com/db).
 
+For those unfamiliar with GPGPU data processing, I recommend the following excellent article: [Data Monster: Why graphics processors will transform database processing](http://spectrum.ieee.org/computing/software/data-monster).
+
 The purpose of this database is to test and demonstrate several novel ideas
 relating to RDBMS-like computation on the GPU. Thus, all queries can be executed
 on the CPU with a single thread, the CPU with multiple threads, or the GPU. The ideas are as follows:
