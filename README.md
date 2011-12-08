@@ -20,8 +20,7 @@ Abstract
 General purpose GPUs are a new and powerful hardware device with a number of applications in the realm of relational
 databases. We describe a database framework designed to
 allow both CPU and GPU execution of queries. Through use
-of our novel data structure design and method of using GPU-
-mapped memory with efficient caching, we demonstrate that
+of our novel data structure design and method of using GPU-mapped memory with efficient caching, we demonstrate that
 GPU query acceleration is possible for data sets much larger
 than the size of GPU memory. We also argue that the use of
 an opcode model of query execution combined with a simple virtual machine provides capabilities that are impossible
@@ -55,15 +54,18 @@ on a previous project that accelerated portions of the SQLite database with GPUs
 The purpose of this database is to test and demonstrate several novel ideas
 relating to RDBMS-like computation on the GPU. Thus, all queries can be executed
 on the CPU with a single thread, the CPU with multiple threads, or the GPU. The ideas are as follows:
+
 - An __opcode model of execution__: Most GPU parallel primitives assign each
   operation to a separate CUDA kernel. Virginian uses high-granularity
   switching between discrete operations within a single kernel. This is
   advantageous because a global synchronization is no longer needed between
   operations.
+  
 - The __Tablet data structure__: By vertically partitioning data, it can be
   moved in discrete sets between CPU and GPU memory. Additionally, this makes
   string management much easier, as strings on tablets can be addressed with a
   relative pointer from its beginning.
+
 - __Mapped memory with lazy writes__: Mapping main memory into GPU memory can
   result in 10x latency on memory accesses unless they are coalesced. By caching
   writes in GPU memory before writing back to mapped memory, we guarantee
