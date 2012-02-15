@@ -44,36 +44,47 @@ system. A thanks goes to the [Systems Architecture group at
 NEC](http://www.nec-labs.com/research/system/systems_arch-website/index.php),
 Srimat Chakradhar in particular, and the
 [LAVA Lab group at UVa](http://www.cs.virginia.edu/~skadron/pub_list.html),
-Prof Kevin Skadron in particular.
+Prof. Kevin Skadron in particular.
+
+Despite its name, this particular project has no affiliation with UVa.
 
 A preliminary academic paper is
 [available here](http://pbbakkum.com/virginian/paper.pdf). This research builds
 on a previous project that accelerated portions of the SQLite database with GPUs
 [available here](http://pbbakkum.com/db).
 
-For those unfamiliar with GPGPU data processing, I recommend the following excellent article: [Data Monster: Why graphics processors will transform database processing](http://spectrum.ieee.org/computing/software/data-monster).
+For background on this area, I recommend the following excellent article:
+[Data Monster: Why graphics processors will transform database processing](http://spectrum.ieee.org/computing/software/data-monster).
+
+Research
+--------
+
+The idea behind this project is simple; By executing database queries on the GPU
+we can achieve significant acceleration, while still using SQL as the
+programmer's interface. Few commercial products use GPGPU acceleration, and there
+has yet to be a SQL database that exploits GPUs to their full potential. This
+research attempts to contribute to the development of future databases.
 
 The purpose of this database is to test and demonstrate several novel ideas
 relating to RDBMS-like computation on the GPU. Thus, all queries can be executed
-on the CPU with a single thread, the CPU with multiple threads, or the GPU. The ideas are as follows:
+on the CPU with a single thread, the CPU with multiple threads, or the GPU.
+
+The ideas are as follows:
 
 - An __opcode model of execution__: Most GPU parallel primitives assign each
   operation to a separate CUDA kernel. Virginian uses high-granularity
   switching between discrete operations within a single kernel. This is
-  advantageous because a global synchronization is no longer needed between
+  advantageous because a global synchronization is not needed between
   operations.
   
 - The __Tablet data structure__: By vertically partitioning data, it can be
-  moved in discrete sets between CPU and GPU memory. Additionally, this makes
-  string management much easier, as strings on tablets can be addressed with a
-  relative pointer from its beginning.
+  moved in discrete sets between CPU and GPU memory. This enables queries even
+  on data sets larger than GPU memory.
 
-- __Mapped memory with lazy writes__: Mapping main memory into GPU memory can
-  result in 10x latency on memory accesses unless they are coalesced. By caching
-  writes in GPU memory before writing back to mapped memory, we guarantee
-  coalescing and achieve higher overall throughput. Mapped memory also means
-  that our results apply for arbitrary data sizes, since neither input data nor
-  query results are stored in GPU memory before or after the query.
+- __Mapped memory with lazy writes__: Mapping main memory onto the GPU obviates
+  the need for data transfers before and after a query execution, the most
+  expensive piece of GPU query processing. Writes back to main memory are cached
+  lazily on the GPU to guarantee coalescing.
 
 This is a "SQL Database" in that it has a SQL interface and is capable of
 performing several types of queries on non-volatile data, but is far from
@@ -97,16 +108,15 @@ here](http://pbbakkum.com/virginian/doc).
 Results
 -------
 
+This research is more about the organization of the database than the query
+running times, since they depend on many factors and are somewhat specific to
+the workload I have focused on. Please read my note about the results below. The results are for brute force SELECT queries that with conditions and math operations.
+
 On the machines I have tested with, GPU execution is __2x - 5x__ faster than
 multicore CPU execution when all-in data and results transfers to and from the
 GPU are included. When these are cached on the GPU, it is around __5x - 10x__
 faster than the CPU. Speedup depends on the query, number of data records,
 number of result records, and the specific test hardware. Your mileage may vary.
-
-The point is that unindexed SQL SELECT filters are faster on GPU hardware than
-CPU hardware, _even for arbitrary data sizes_ including transfer times. This
-is possible because of two innovations: the __Tablet__, and my technique of
-_mapped memory with lazy result writes_. See the paper for more details.
 
 Here are some performance charts that compare running times of a 10 SQL query
 suite on the CPU and two GPU execution techniques. The mapped configuration is
@@ -117,19 +127,73 @@ for data sizes that fit within the GPU's global memory.
 
 <img src="http://pbbakkum.com/virginian/growth.jpg"/>
 
+A Note About Results
+--------------------
+
+The classic issue with research like this that compares CPU and GPU running
+times is that one implementation is _way_ more optimized than the other, or the
+authors fail to mention that the GPU results do not include memory transfer
+times, or something along those lines, leading to inflated results.
+There was even a [paper by
+Intel](http://dl.acm.org/citation.cfm?id=1816021&bnc=1),
+ominously titled "Debunking the 100X GPU vs. CPU myth,"
+released to refute some of the most egregious offenders in terms of comparison.
+My impression is that this has lead some people to conclude 'this GPU thing is
+overblown'.
+
+I would disagree. Though it may not be in the range of
+100x, most of these problems still have significant speedup on the GPU. An
+NVIDIA manager 
+[responded](http://blogs.nvidia.com/2010/06/gpus-are-only-up-to-14-times-faster-than-cpus-says-intel/)
+to the Intel paper with, "It’s a rare day in the world of technology when a
+company you compete with stands up at an important conference and declares that
+your technology is *only* up to 14 times faster than theirs."
+
+Here is what you should know about these results:
+
+* They are for a particular hardware configuration, on a particular query set,
+  on a particular data set, with particular workload characteristics, etc.
+  This research is fundamentally about the data
+  structures and programming techniques I used, not producing a CPU/GPU
+  comparison. GPU technology will likely look very different in just a few
+  years, so what matters is how you program them, not what the speedup is today.
+
+* Here is one perspective: These results used an Intel Core i7 960 and an NVIDIA GTX 570.
+  The CPU has 4 (hyperthreaded) cores, 25.6 GB/s memory throughput, and can do about 70 GFLOPS.
+  The GPU has 480 cores, 152 GB/s memory throughput, and is benchmarked at 1405
+  GFLOPS. Obviously there are many differences between the two, but the GPU has
+  enough horsepower that its easy to see how this acceleration is possible.
+
+* I have no doubt that neither of my
+  implementations is truly 'optimal' and that if you were to spend time
+  playing with my code you could probably make either faster than it is today.
+  I've aimed more for CPU/GPU coprocessing than blowing one hardware or another
+  out of the water.  Again, the real problem here is how you write your code to 
+  work on the CPU while exploiting GPU hardware. 
+
 License
 -------
 
-This software is provided "as is" and any expressed or implied warranties,
-including, but not limited to, the implied warranties of merchantibility and
-fitness for a particular purpose are disclaimed. In no event shall the
-regents or contributors be liable for any direct, indirect, incidental,
-special, exemplary, or consequential damages (including, but not limited to,
-procurement of substitute goods or services; loss of use, data, or profits;
-or business interruption) however caused and on any theory of liability,
-whether in contract, strict liability, or tort (including negligence or
-otherwise) arising in any way out of the use of this software, even if
-advised of the possibility of such damage.
+Copyright (C) 2012 Peter Bakkum
+
+(MIT License)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Using Virginian
 ---------------

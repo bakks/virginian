@@ -1,7 +1,6 @@
 #pragma once
 
 #include "virginian.h"
-
 #include "gtest/gtest.h"
 
 

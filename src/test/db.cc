@@ -1,6 +1,4 @@
-
 #include "virginian.h"
-
 #include "test/test.h"
 
 namespace {

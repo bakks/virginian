@@ -1,6 +1,4 @@
-
 #include "virginian.h"
-
 #include "test/test.h"
 #include "test/queries.h"
 #include "gsl/gsl_rng.h"

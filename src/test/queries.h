@@ -1,4 +1,3 @@
-
 #define query_size 10
 static const char *queries[] = {
 	"select id, uniformi, normali5 from test where uniformi > 60 and normali5 < 0",
