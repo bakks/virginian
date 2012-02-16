@@ -40,7 +40,7 @@ Introduction
 
 This is an experimental heterogeneous SQL database written to compare data
 processing on the CPU and NVIDIA GPUs. It was written by Peter Bakkum
-during the summer of 2010 at NEC Laboratories America in Princeton, New Jersey
+during the summer of 2010 at NEC Laboratories America in Princeton
 with several subsequent expansions. It shares no code with any other database
 system. A thanks goes to the [Systems Architecture group at
 NEC](http://www.nec-labs.com/research/system/systems_arch-website/index.php),
@@ -115,7 +115,7 @@ Results
 This research is more about the organization of the database than the query
 running times, since they depend on many factors and are somewhat specific to
 the workload I have focused on. Please read my note about the results below.
-The results are for brute force SELECT queries that with conditions and math
+The results are for brute force SELECT queries with conditions and math
 operations.
 
 On the machines I have tested with, GPU execution is __2x - 5x__ faster than
@@ -124,7 +124,7 @@ GPU are included. When these are cached on the GPU, it is around __5x - 10x__
 faster than the CPU. Speedup depends on the query, number of data records,
 number of result records, and the specific test hardware. Your mileage may vary.
 
-Here are some performance charts that compare running times of a 10 SQL query
+Here are some performance charts that compare running times of a 10 query
 suite on the CPU and two GPU execution techniques. The mapped configuration is
 applicable to arbitrary data sizes, while the cached configuration applies only
 for data sizes that fit within the GPU's global memory.
