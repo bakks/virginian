@@ -51,9 +51,9 @@ Prof. Kevin Skadron in particular.
 Despite its name, this particular project has no affiliation with UVa.
 
 A preliminary academic paper is
-[available here](http://pbbakkum.com/virginian/paper.pdf). This research builds
-on a previous project that accelerated portions of the SQLite database with GPUs
-[available here](http://pbbakkum.com/db).
+[available here](/assets/paper.pdf?raw=true). This research builds
+on a previous project that reimplemented parts of the SQLite database with GPUs
+[available here](http://github.com/bakks/sphyraena). The previous work was published as [Accelerating SQL Database Operations on a GPU with CUDA](https://github.com/bakks/sphyraena/raw/master/papers/bakkum.sql.db.gpu.pdf).
 
 For background on this area, I recommend the following excellent article:
 [Data Monster: Why graphics processors will transform database processing](http://spectrum.ieee.org/computing/software/data-monster).
@@ -129,9 +129,9 @@ suite on the CPU and two GPU execution techniques. The mapped configuration is
 applicable to arbitrary data sizes, while the cached configuration applies only
 for data sizes that fit within the GPU's global memory.
 
-<img src="http://pbbakkum.com/virginian/perfhist.jpg"/>
+![Performance Histogram](/assets/perfhist.jpg?raw=true)
 
-<img src="http://pbbakkum.com/virginian/growth.jpg"/>
+![Growth](/assets/growth.jpg?raw=true)
 
 
 A Note About Results
